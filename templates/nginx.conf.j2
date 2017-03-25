@@ -22,11 +22,11 @@ server {
 {% endif %}
 
     ssl                  on;
-    ssl_certificate      /etc/nginx/certs/{{ nginx_fqdn }}/fullchain.pem;
-    ssl_certificate_key  /etc/nginx/certs/{{ nginx_fqdn }}/privkey.pem;
+    ssl_certificate      {{ nginx_cert_path }};
+    ssl_certificate_key  {{ nginx_key_path }};
+    ssl_trusted_certificate {{ nginx_fullchain_path }};
     ssl_stapling on;
     ssl_stapling_verify on;
-    ssl_trusted_certificate /etc/nginx/certs/{{ nginx_fqdn }}/fullchain.pem;
     resolver 8.8.4.4;
 
     ssl_protocols {{ nginx_ssl_protocols }};
