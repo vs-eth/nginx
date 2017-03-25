@@ -2,9 +2,9 @@ server {
     listen       [::]:80 ipv6only=off default_server;
     server_name  {{ nginx_fqdn }};
 
-    location /.well-known/acme-challenge {
-    default_type text/plain;
-        alias {{ nginx_ledir }};
+    location ^~ /.well-known/acme-challenge {
+        default_type text/plain;
+        alias {{ nginx_ledir }}/.well-known/acme-challenge;
     }
 
 {% if nginx_sslonly %}
@@ -39,9 +39,9 @@ server {
     ssl_session_cache shared:SSL:50m;
     ssl_session_tickets off;
 
-    location /.well-known/acme-challenge {
+    location ^~ /.well-known/acme-challenge {
         allow all;
-        alias {{ nginx_ledir }};
+        alias {{ nginx_ledir }}/.well-known/acme-challenge;
     }
 
     include /etc/nginx/base.d/*;
