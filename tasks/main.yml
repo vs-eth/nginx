@@ -31,19 +31,19 @@
 
 - name: Check if certificates exist
   stat:
-    path: "/etc/nginx/certs/{{ nginx_fqdn }}/fullchain.pem"
+    path: "{{ nginx_fullchain_path }}"
   register: certstat
 
 - name: Copy snakeoil certificate
   copy:
     src: snakeoil.pem
-    dest: "/etc/nginx/certs/{{ nginx_fqdn }}/fullchain.pem"
+    dest: "{{ nginx_fullchain_path }}"
   when: not certstat.stat.exists
 
 - name: Copy snakeoil certificate key
   copy:
     src: snakeoil.key
-    dest: "/etc/nginx/certs/{{ nginx_fqdn }}/privkey.pem"
+    dest: "{{ nginx_key_path }}"
   when: not certstat.stat.exists
 
 - name: Disable nginx default vhost
