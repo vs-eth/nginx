@@ -1,6 +1,10 @@
 ---
 - name: Install nginx
-  apt: name={{ item }} state=present update_cache=yes cache_valid_time=1800
+  apt:
+    name: "{{ item }}"
+    state: present
+    update_cache: True
+    cache_valid_time: 1800
   with_items:
     - nginx
 
@@ -11,7 +15,9 @@
   failed_when: False
 
 - name: Create certificate directory
-  file: path=/etc/nginx/certs/{{ nginx_fqdn }} state=directory
+  file:
+    path: "/etc/nginx/certs/{{ nginx_fqdn }}"
+    state: directory
 
 - name: Create LE directory
   file:
@@ -24,26 +30,40 @@
     state: directory
 
 - name: Check if certificates exist
-  stat: path=/etc/nginx/certs/{{ nginx_fqdn }}/fullchain.pem
+  stat:
+    path: "/etc/nginx/certs/{{ nginx_fqdn }}/fullchain.pem"
   register: certstat
 
 - name: Copy snakeoil certificate
-  copy: src=snakeoil.pem dest=/etc/nginx/certs/{{ nginx_fqdn }}/fullchain.pem
+  copy:
+    src: snakeoil.pem
+    dest: "/etc/nginx/certs/{{ nginx_fqdn }}/fullchain.pem"
   when: not certstat.stat.exists
 
 - name: Copy snakeoil certificate key
-  copy: src=snakeoil.key dest=/etc/nginx/certs/{{ nginx_fqdn }}/privkey.pem
+  copy:
+    src: snakeoil.key
+    dest: "/etc/nginx/certs/{{ nginx_fqdn }}/privkey.pem"
   when: not certstat.stat.exists
 
 - name: Disable nginx default vhost
-  file: dest=/etc/nginx/sites-enabled/default state=absent
+  file:
+    dest: /etc/nginx/sites-enabled/default
+    state: absent
   notify: restart nginx
 
 - name: Copy new base vhost
-  template: src=nginx.conf.j2 dest=/etc/nginx/sites-enabled/base.conf owner=root group=root mode=0644
+  template:
+    src: nginx.conf.j2
+    dest: /etc/nginx/sites-enabled/base.conf
+    owner: root
+    group: root
+    mode: 0644
   notify: restart nginx
 
 - name: Enable nginx
-  service: name=nginx enabled=yes
+  service:
+    name: nginx
+    enabled: yes
 
 - meta: flush_handlers
