@@ -13,6 +13,7 @@
   register: nginx_http2
   changed_when: False
   failed_when: False
+  check_mode: False
 
 - name: Create certificate directory
   file:
