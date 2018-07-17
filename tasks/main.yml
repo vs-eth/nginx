@@ -1,5 +1,6 @@
 ---
 - name: Install nginx
+  become: True
   apt:
     name: "{{ item }}"
     state: present
@@ -16,16 +17,19 @@
   check_mode: False
 
 - name: Create certificate directory
+  become: True
   file:
     path: "/etc/nginx/certs/{{ nginx_fqdn }}"
     state: directory
 
 - name: Create LE directory
+  become: True
   file:
     path: "{{ nginx_ledir }}"
     state: directory
 
 - name: Create base vhost drop-in directory
+  become: True
   file:
     path: /etc/nginx/base.d
     state: directory
@@ -36,24 +40,28 @@
   register: certstat
 
 - name: Copy snakeoil certificate
+  become: True
   copy:
     src: snakeoil.pem
     dest: "{{ nginx_fullchain_path }}"
   when: not certstat.stat.exists
 
 - name: Copy snakeoil certificate key
+  become: True
   copy:
     src: snakeoil.key
     dest: "{{ nginx_key_path }}"
   when: not certstat.stat.exists
 
 - name: Disable nginx default vhost
+  become: True
   file:
     dest: /etc/nginx/sites-enabled/default
     state: absent
   notify: restart nginx
 
 - name: Copy new base vhost
+  become: True
   template:
     src: nginx.conf.j2
     dest: /etc/nginx/sites-enabled/base.conf
@@ -63,6 +71,7 @@
   notify: restart nginx
 
 - name: Enable nginx
+  become: True
   service:
     name: nginx
     enabled: yes
