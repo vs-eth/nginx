@@ -14,6 +14,7 @@ server {
 {% endif %}
 }
 
+{% if nginx_canonicalize_https %}
 server {
 {% if nginx_http2.rc == 0 %}
     listen [::]:443 ssl http2 ipv6only=off default_server;
@@ -25,6 +26,47 @@ server {
 {% if nginx_enable_proxy %}
     listen [::]:444 ssl proxy_protocol spdy ipv6only=off default_server;
 {% endif %}
+{% endif %}
+    server_name _;
+    ssl                  on;
+    ssl_certificate      {{ nginx_fullchain_path }};
+    ssl_certificate_key  {{ nginx_key_path }};
+    ssl_trusted_certificate {{ nginx_fullchain_path }};
+    ssl_stapling on;
+    ssl_stapling_verify on;
+    resolver 8.8.4.4;
+
+    ssl_protocols {{ nginx_ssl_protocols }};
+    ssl_ciphers '{{ nginx_ssl_ciphers }}';
+    ssl_prefer_server_ciphers   on;
+
+    ssl_session_timeout 1d;
+    ssl_session_cache shared:SSL:50m;
+    ssl_session_tickets off;
+
+    return 301 https://{{ nginx_fqdn }}$request_uri;
+}
+{% endif %}
+
+server {
+{% if nginx_canonicalize_https %}
+    listen [::]:443;
+{% else %}
+{% if nginx_http2.rc == 0 %}
+    listen [::]:443 ssl http2 ipv6only=off default_server;
+{% if nginx_enable_proxy %}
+    listen [::]:444 ssl proxy_protocol http2 ipv6only=off default_server;
+{% endif %}
+{% else %}
+    listen [::]:443 ssl spdy ipv6only=off default_server;
+{% if nginx_enable_proxy %}
+    listen [::]:444 ssl proxy_protocol spdy ipv6only=off default_server;
+{% endif %}
+{% endif %}
+{% endif %}
+
+{% if nginx_define_root %}
+    root /var/www/html;
 {% endif %}
 
     ssl                  on;
