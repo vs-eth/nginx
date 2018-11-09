@@ -10,6 +10,7 @@
     - nginx
 
 - name: Check HTTP2 support
+  become: True
   shell: nginx -V 2>&1 | grep http_v2
   register: nginx_http2
   changed_when: False
