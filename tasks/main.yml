@@ -35,6 +35,13 @@
     path: /etc/nginx/base.d
     state: directory
 
+- name: Create custom vhost drop-in directory
+  become: True
+  with_items: "{{ nginx_extra_hosts }}"
+  file:
+    path: "/etc/nginx/{{ item.name }}.d"
+    state: directory
+
 - name: Check if certificates exist
   stat:
     path: "{{ nginx_fullchain_path }}"
@@ -66,6 +73,17 @@
   template:
     src: nginx.conf.j2
     dest: /etc/nginx/sites-enabled/base.conf
+    owner: root
+    group: root
+    mode: 0644
+  notify: restart nginx
+
+- name: Copy custom vhost
+  become: True
+  with_items: "{{ nginx_extra_hosts }}"
+  template:
+    src: nginx-extrahost.conf.j2
+    dest: "/etc/nginx/sites-enabled/{{ item.name }}.conf"
     owner: root
     group: root
     mode: 0644

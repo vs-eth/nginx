@@ -16,6 +16,7 @@ Configure nginx for general use. TLS is always enabled per default enforced (in 
 |nginx_cert_path|(see `defaults/main.yml`)|Path to the SSL certificate|
 |nginx_key_path|(see `defaults/main.yml`)|Path to the SSL certificate's key|
 |nginx_fullchain_path|(see `defaults/main.yml`)|Path to the certificate bundle used to verify an OCSP server's response|
+|nginx_extra_hosts|`[]`| List of extra vhosts to create. They work just like the base vhost, see `defaults/main.yml` for how to format the list|
 
 ## Dependencies
 None.
