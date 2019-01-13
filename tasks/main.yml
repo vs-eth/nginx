@@ -2,12 +2,10 @@
 - name: Install nginx
   become: True
   apt:
-    name: "{{ item }}"
+    name: nginx
     state: present
     update_cache: True
     cache_valid_time: 1800
-  with_items:
-    - nginx
 
 - name: Check HTTP2 support
   become: True
