@@ -5,5 +5,5 @@ before_script:
   - pip install ansible-lint
 linting:
   stage: linting
-  script: ansible-lint .
+  script: ansible-lint -x 405 .
 
