@@ -21,12 +21,14 @@ server {
 {% if nginx_enable_proxy %}
     listen [::]:444 ssl proxy_protocol http2 ipv6only=off default_server;
     real_ip_header proxy_protocol;
+
 {% endif %}
 {% else %}
-    listen [::]:443 ssl spdy ipv6only=off default_server;
+    listen [::]:443 ssl http2 ipv6only=off default_server;
 {% if nginx_enable_proxy %}
-    listen [::]:444 ssl proxy_protocol spdy ipv6only=off default_server;
+    listen [::]:444 ssl proxy_protocol http2 ipv6only=off default_server;
     real_ip_header proxy_protocol;
+
 {% endif %}
 {% endif %}
     server_name _;
@@ -58,11 +60,15 @@ server {
     listen [::]:443 ssl http2 ipv6only=off default_server;
 {% if nginx_enable_proxy %}
     listen [::]:444 ssl proxy_protocol http2 ipv6only=off default_server;
+    real_ip_header proxy_protocol;
+    set_real_ip_from {{ nginx_proxy_subnet }};
 {% endif %}
 {% else %}
     listen [::]:443 ssl spdy ipv6only=off default_server;
 {% if nginx_enable_proxy %}
-    listen [::]:444 ssl proxy_protocol spdy ipv6only=off default_server;
+    listen [::]:444 ssl proxy_protocol http2 ipv6only=off default_server;
+    real_ip_header proxy_protocol;
+    set_real_ip_from {{ nginx_proxy_subnet }};
 {% endif %}
 {% endif %}
 {% endif %}
@@ -74,10 +80,12 @@ server {
     ssl                  on;
     ssl_certificate      {{ nginx_fullchain_path }};
     ssl_certificate_key  {{ nginx_key_path }};
+{% if nginx_clientcert is not defined %}
     ssl_trusted_certificate {{ nginx_fullchain_path }};
     ssl_stapling on;
     ssl_stapling_verify on;
     resolver 8.8.4.4;
+{% endif %}
 
     ssl_protocols {{ nginx_ssl_protocols }};
     ssl_ciphers '{{ nginx_ssl_ciphers }}';
@@ -88,6 +96,13 @@ server {
     ssl_session_timeout 1d;
     ssl_session_cache shared:SSL:50m;
     ssl_session_tickets off;
+
+{% if nginx_clientcert is defined %}
+    ssl_client_certificate {{ nginx_clientcert }};
+    ssl_trusted_certificate {{ nginx_clientcert }};
+    ssl_verify_client optional;
+    ssl_verify_depth 1;
+{% endif %}
 
     location ^~ /.well-known/acme-challenge {
         allow all;

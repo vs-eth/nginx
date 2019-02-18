@@ -66,6 +66,16 @@
     state: absent
   notify: restart nginx
 
+- name: Copy ip range config
+  become: True
+  template:
+    src: ranges.conf.j2
+    dest: /etc/nginx/conf.d/ranges.conf
+    owner: root
+    group: root
+    mode: 0644
+  notify: restart nginx
+
 - name: Copy new base vhost
   become: True
   template:

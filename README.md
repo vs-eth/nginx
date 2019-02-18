@@ -17,6 +17,8 @@ Configure nginx for general use. TLS is always enabled per default enforced (in 
 |nginx_key_path|(see `defaults/main.yml`)|Path to the SSL certificate's key|
 |nginx_fullchain_path|(see `defaults/main.yml`)|Path to the certificate bundle used to verify an OCSP server's response|
 |nginx_extra_hosts|`[]`| List of extra vhosts to create. They work just like the base vhost, see `defaults/main.yml` for how to format the list|
+|nginx_proxy_subnet|`192.168.0.0/24`|Subnet to trust with origin IP when using the proxy protocol|
+|nginx_clientcert|unset| Path to a valid CA cert for client certificates. Client certificates will be requested but not required. Mutually exclusive with OCSP stapling at the moment. |
 
 ## Dependencies
 None.
