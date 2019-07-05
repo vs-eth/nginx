@@ -7,14 +7,6 @@
     update_cache: True
     cache_valid_time: 1800
 
-- name: Check HTTP2 support
-  become: True
-  shell: set -o pipefail && nginx -V 2>&1 | grep http_v2
-  register: nginx_http2
-  changed_when: False
-  failed_when: False
-  check_mode: False
-
 - name: Create certificate directory
   become: True
   file:

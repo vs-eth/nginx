@@ -1,6 +1,6 @@
 # nginx
 
-Tested on: Debian 8, 9
+Tested on: Debian 9
 
 Configure nginx for general use. TLS is always enabled per default enforced (in that case HTTP only gets you a HTTP 302). HSTS is always enabled. To use, simply put your own config under `/etc/nginx/base.d`. It will automatically be included in the default server block. If the specified certificate does not exist (yet), we upload `snakeoil` certificates(that is, a dummy certificate contained in this repositoriy along with it's private key) so that nginx is able to start. You're supposed to use our `letsencrypt` role to replace them with real certificates ;)
 
