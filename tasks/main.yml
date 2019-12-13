@@ -7,6 +7,21 @@
     update_cache: True
     cache_valid_time: 1800
 
+- name: Install nginx SPENGO module
+  become: True
+  apt:
+    name: libnginx-mod-http-auth-spnego
+    state: present
+    update_cache: True
+    cache_valid_time: 1800
+
+- name: Enable nginx SPENGO module
+  become: True
+  file:
+    src: /usr/share/nginx/modules-available/mod-http-auth-spnego.conf
+    dest: /etc/nginx/modules-enabled/50-mod-http-auth-spnego.conf
+    state: link
+
 - name: Create certificate directory
   become: True
   file:

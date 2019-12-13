@@ -19,6 +19,13 @@ Configure nginx for general use. TLS is always enabled per default enforced (in 
 |nginx_extra_hosts|`[]`| List of extra vhosts to create. They work just like the base vhost, see `defaults/main.yml` for how to format the list|
 |nginx_proxy_subnet|`192.168.0.0/24`|Subnet to trust with origin IP when using the proxy protocol|
 |nginx_clientcert|unset| Path to a valid CA cert for client certificates. Client certificates will be requested but not required. Mutually exclusive with OCSP stapling at the moment. |
+|nginx_enable_spnego|`False`| Whether to enable SPNEGO (Kerberos) support|
+|nginx_spnego_realm|`EXAMPLE.ORG`| Which kerberos realm to use|
+|nginx_spenego_users|`[]`| If set, which users to limit auth to|
 
 ## Dependencies
 None.
+
+## SPNEGO
+Support is based on [this](https://github.com/stnoonan/spnego-http-auth-nginx-module) module.
+You're expected to set up a keytab with `HTTP/{{ fqdn }}@REALM` in `/etc/nginx/krb5-ngx.keytab`, authentication is enabled by setting `auth_gss on;`.
