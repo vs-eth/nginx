@@ -40,8 +40,18 @@ server {
     resolver 8.8.4.4;
 
     ssl_protocols {{ nginx_ssl_protocols }};
+{% if nginx_ssl_ciphers != '' %}
     ssl_ciphers '{{ nginx_ssl_ciphers }}';
-    ssl_prefer_server_ciphers   on;
+{% endif %}
+    ssl_prefer_server_ciphers   off;
+{% if nginx_enable_spnego %}
+    auth_gss_keytab '/etc/nginx/krb5-ngx.keytab';
+    auth_gss_realm {{ nginx_spnego_realm }};
+    auth_gss_service_name HTTP/{{ ansible_fqdn }};
+{% for item in nginx_spengo_users %}
+    auth_gss_authorized_principal {{ item }};
+{% endfor %}
+{% endif %}
 
     add_header Strict-Transport-Security max-age=15768000;
     ssl_session_timeout 1d;
