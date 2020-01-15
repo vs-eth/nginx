@@ -9,6 +9,7 @@
 
 - name: Install nginx SPENGO module
   become: True
+  when: nginx_enable_spnego
   apt:
     name: libnginx-mod-http-auth-spnego
     state: present
@@ -16,6 +17,7 @@
     cache_valid_time: 1800
 
 - name: Enable nginx SPENGO module
+  when: nginx_enable_spnego
   become: True
   file:
     src: /usr/share/nginx/modules-available/mod-http-auth-spnego.conf
