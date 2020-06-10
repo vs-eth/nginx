@@ -10,7 +10,6 @@ nginx_enable_proxy: False
 nginx_define_root: False
 nginx_canonicalize_https: False
 
-nginx_cert_path: '{{ (letsencrypt_install | default({})).cert_path | default("/etc/nginx/certs/" ~nginx_fqdn ~"/fullchain.pem") }}'
 nginx_key_path: '{{ (letsencrypt_install | default({})).key_path | default("/etc/nginx/certs/" ~nginx_fqdn ~"/privkey.pem") }}'
 nginx_fullchain_path: '{{ (letsencrypt_install | default({})).fullchain_path | default("/etc/nginx/certs/" ~nginx_fqdn ~"/fullchain.pem") }}'
 
