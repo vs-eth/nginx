@@ -1,11 +1,8 @@
 server {
-    listen       [::]:80 ipv6only=off default_server;
-    server_name  {{ nginx_fqdn }};
+    listen      [::]:80 ipv6only=off default_server;
+    server_name {{ nginx_fqdn }};
 
-    location ^~ /.well-known/acme-challenge {
-        default_type text/plain;
-        alias {{ nginx_ledir }}/.well-known/acme-challenge;
-    }
+    include /etc/nginx/snippets/letsencrypt.conf;
 
 {% if nginx_sslonly %}
     return 301 https://$server_name$request_uri;  # enforce https
@@ -17,29 +14,31 @@ server {
 {% if nginx_canonicalize_https %}
 server {
     listen [::]:443 ssl http2 ipv6only=off default_server;
+    server_name _;
+
 {% if nginx_enable_proxy %}
     listen [::]:444 ssl proxy_protocol http2 ipv6only=off default_server;
     real_ip_header proxy_protocol;
-{% endif %}
-    server_name _;
 
-    ssl                  on;
-    ssl_certificate      {{ nginx_fullchain_path }};
-    ssl_certificate_key  {{ nginx_key_path }};
+{% endif %}
+    ssl                     on;
+    ssl_certificate         {{ nginx_fullchain_path }};
+    ssl_certificate_key     {{ nginx_key_path }};
     ssl_trusted_certificate {{ nginx_fullchain_path }};
-    ssl_stapling on;
-    ssl_stapling_verify on;
-    resolver 8.8.4.4;
+    ssl_stapling            on;
+    ssl_stapling_verify     on;
 
-    ssl_protocols {{ nginx_ssl_protocols }};
+    ssl_protocols             {{ nginx_ssl_protocols }};
 {% if nginx_ssl_ciphers != '' %}
-    ssl_ciphers '{{ nginx_ssl_ciphers }}';
+    ssl_ciphers               '{{ nginx_ssl_ciphers }}';
 {% endif %}
-    ssl_prefer_server_ciphers   off;
+    ssl_prefer_server_ciphers off;
 
     ssl_session_timeout 1d;
-    ssl_session_cache shared:SSL:50m;
+    ssl_session_cache   shared:SSL:50m;
     ssl_session_tickets off;
+
+    resolver 8.8.4.4;
 
     return 301 https://{{ nginx_fqdn }}$request_uri;
 }
@@ -47,10 +46,11 @@ server {
 {% endif %}
 server {
     listen [::]:443 ssl http2{% if not nginx_canonicalize_https %} ipv6only=off default_server{% endif %};
+    server_name {{ nginx_fqdn }};
 
 {% if nginx_enable_proxy %}
-    listen [::]:444 ssl proxy_protocol http2{% if not nginx_canonicalize_https %} ipv6only=off default_server{% endif %};
-    real_ip_header proxy_protocol;
+    listen           [::]:444 ssl proxy_protocol http2{% if not nginx_canonicalize_https %} ipv6only=off default_server{% endif %};
+    real_ip_header   proxy_protocol;
     set_real_ip_from {{ nginx_proxy_subnet }};
 
 {% endif %}
@@ -58,35 +58,29 @@ server {
     root /var/www/html;
 
 {% endif %}
-    ssl                  on;
-    ssl_certificate      {{ nginx_fullchain_path }};
-    ssl_certificate_key  {{ nginx_key_path }};
+    ssl                     on;
+    ssl_certificate         {{ nginx_fullchain_path }};
+    ssl_certificate_key     {{ nginx_key_path }};
 {% if nginx_clientcert is not defined %}
     ssl_trusted_certificate {{ nginx_fullchain_path }};
-    ssl_stapling on;
-    ssl_stapling_verify on;
-    resolver 8.8.4.4;
+    ssl_stapling            on;
+    ssl_stapling_verify     on;
+
 {% endif %}
 
-    ssl_protocols {{ nginx_ssl_protocols }};
+    ssl_protocols             {{ nginx_ssl_protocols }};
 {% if nginx_ssl_ciphers != '' %}
-    ssl_ciphers '{{ nginx_ssl_ciphers }}';
+    ssl_ciphers               '{{ nginx_ssl_ciphers }}';
 {% endif %}
-    ssl_prefer_server_ciphers   off;
-{% if nginx_enable_spnego %}
-    auth_gss_keytab '/etc/nginx/krb5-ngx.keytab';
-    auth_gss_realm {{ nginx_spnego_realm }};
-    auth_gss_service_name HTTP/{{ ansible_fqdn }};
-{% for item in nginx_spengo_users %}
-    auth_gss_authorized_principal {{ item }};
-{% endfor %}
-{% endif %}
+    ssl_prefer_server_ciphers off;
 
-    server_name {{ nginx_fqdn }};
-    add_header Strict-Transport-Security max-age=15768000;
     ssl_session_timeout 1d;
-    ssl_session_cache shared:SSL:50m;
+    ssl_session_cache   shared:SSL:50m;
     ssl_session_tickets off;
+
+    add_header Strict-Transport-Security max-age=15768000;
+
+    resolver 8.8.4.4;
 
 {% if nginx_clientcert is defined %}
     ssl_client_certificate {{ nginx_clientcert }};
@@ -95,10 +89,16 @@ server {
     ssl_verify_depth 1;
 
 {% endif %}
-    location ^~ /.well-known/acme-challenge {
-        allow all;
-        alias {{ nginx_ledir }}/.well-known/acme-challenge;
-    }
+{% if nginx_enable_spnego %}
+    auth_gss_keytab '/etc/nginx/krb5-ngx.keytab';
+    auth_gss_realm {{ nginx_spnego_realm }};
+    auth_gss_service_name HTTP/{{ ansible_fqdn }};
+{% for item in nginx_spengo_users %}
+    auth_gss_authorized_principal {{ item }};
+{% endfor %}
+
+{% endif %}
+    include /etc/nginx/snippets/letsencrypt.conf;
 
     include /etc/nginx/base.d/*;
 }
