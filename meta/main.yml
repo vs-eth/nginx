@@ -9,8 +9,8 @@ galaxy_info:
   platforms:
     - name: Debian
       versions:
-        - jessie
         - stretch
+        - buster
   galaxy_tags:
     - web
 dependencies: []

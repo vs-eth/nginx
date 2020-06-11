@@ -20,6 +20,7 @@ nginx_extra_hosts: []
 #      - example.org
 #    cert: ...
 #    key: ...
+#    config: ""
 
 nginx_proxy_subnet: 192.168.0.0/16
 

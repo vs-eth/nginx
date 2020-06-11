@@ -68,13 +68,6 @@
     path: /etc/nginx/base.d
     state: directory
 
-- name: Create custom vhost drop-in directory
-  become: True
-  file:
-    path: "/etc/nginx/{{ item.name }}.d"
-    state: directory
-  with_items: "{{ nginx_extra_hosts }}"
-
 - name: Copy config files
   become: True
   template:
@@ -89,16 +82,8 @@
     - { src: etc_nginx_snippets_letsencrypt_conf.j2, dest: /etc/nginx/snippets/letsencrypt.conf }
   notify: restart nginx
 
-- name: Copy custom vhost
-  become: True
-  template:
-    src: nginx-extrahost.conf.j2
-    dest: "/etc/nginx/sites-enabled/{{ item.name }}.conf"
-    owner: root
-    group: root
-    mode: 0644
-  with_items: "{{ nginx_extra_hosts }}"
-  notify: restart nginx
+- include_tasks: vhost.yml
+  loop: "{{ nginx_extra_hosts }}"
 
 - name: Enable nginx
   become: True
