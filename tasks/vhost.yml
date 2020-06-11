@@ -23,5 +23,5 @@
     owner: root
     group: root
     mode: 0644
-  when: item.config is defined and item.config != ""
+  when: item.config is defined and item.config|length > 0
   notify: restart nginx
